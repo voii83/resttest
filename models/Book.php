@@ -68,8 +68,11 @@ class Book extends ActiveRecord
     {
         $book = self::findOne($id_book);
         $book->id_author = $id_author;
-        $book->save();
+        return $book->save() ? $book : null;
+    }
 
-        return $this->save() ? $book : null;
+    public function deleteByAuthor($id_author)
+    {
+        self::deleteAll('id_author = :id_author', ['id_author' => $id_author]);
     }
 }

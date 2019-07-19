@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\helpers\Html;
 use yii\rest\ActiveController;
 use yii\web\NotFoundHttpException;
 
@@ -34,6 +35,8 @@ class BookController extends ActiveController
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
+
         return $actions;
     }
 
@@ -71,6 +74,22 @@ class BookController extends ActiveController
             $model = new $this->modelClass;
             $result = $model->updateAuthor($id_book, $id_author);
             return $result;
+        }
+        throw new NotFoundHttpException;
+    }
+
+    public function actionDelete()
+    {
+        $id_book = Yii::$app->request->queryParams['id'];
+        $id_author = Yii::$app->request->queryParams['id_author'];
+
+        if (Author::findOne($id_author)) {
+            if ($id_book == 0) {
+                Author::deleteAll('id = :id_author', ['id_author' => $id_author]);
+                $modelBook = new $this->modelClass;
+                $modelBook->deleteByAuthor($id_author);
+                return true;
+            }
         }
         throw new NotFoundHttpException;
     }
