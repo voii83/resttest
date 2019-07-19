@@ -53,4 +53,14 @@ class Book extends ActiveRecord
         }
         return Book::find()->all();
     }
+
+    public function create($request)
+    {
+        $this->year_issue = $request['year_issue'];
+        $this->id_author = $request['id_author'];
+        $this->title = $request['title'];
+        $this->edition = $request['edition'];
+
+        return $this->save() ? $this : null;
+    }
 }

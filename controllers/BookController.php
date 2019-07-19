@@ -2,10 +2,11 @@
 
 namespace app\controllers;
 
-use app\models\Book;
+use Yii;
 use yii\rest\ActiveController;
-use yii\rest\IndexAction;
 use yii\web\NotFoundHttpException;
+
+use app\models\Author;
 
 class BookController extends ActiveController
 {
@@ -28,22 +29,34 @@ class BookController extends ActiveController
 
     public function actions()
     {
-        return [
-            'index' => [
-                'class' => IndexAction::className(),
-                'modelClass' => $this->modelClass,
-                'checkAccess' => [$this, 'checkAccess'],
-                'prepareDataProvider' => function ($action) {
-                    $model = new Book();
-                    $author = \Yii::$app->request->queryParams;
-                    $result = $model->search($author);
+        $actions = parent::actions();
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+        unset($actions['create']);
+        return $actions;
+    }
 
-                    if (!$result) {
-                        throw new NotFoundHttpException;
-                    }
-                    return $result;
-                }
-            ],
-        ];
+    public function prepareDataProvider($action)
+    {
+        $model = new $this->modelClass;
+        $author = Yii::$app->request->queryParams;
+
+        if ($result = $model->search($author)) {
+            return $result;
+        }
+
+        throw new NotFoundHttpException;
+    }
+
+    public function actionCreate()
+    {
+        $model = new $this->modelClass;
+        $request = Yii::$app->request->post();
+
+        if (Author::findOne($request['id_author'])) {
+            $result = $model->create($request);
+            return $result;
+        }
+
+        throw new NotFoundHttpException;
     }
 }
