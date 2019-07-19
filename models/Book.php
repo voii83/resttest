@@ -63,4 +63,13 @@ class Book extends ActiveRecord
 
         return $this->save() ? $this : null;
     }
+
+    public function updateAuthor($id_book, $id_author)
+    {
+        $book = self::findOne($id_book);
+        $book->id_author = $id_author;
+        $book->save();
+
+        return $this->save() ? $book : null;
+    }
 }
